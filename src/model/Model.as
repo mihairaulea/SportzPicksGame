@@ -26,6 +26,7 @@ package model
 		
 		// VALUE OBJECTS
 		var lobbyInfo:LobbyInfoVA = new LobbyInfoVA();
+		var opponentInfo:OpponentInfoVA = new OpponentInfoVA();
 		
 		public function Model() 
 		{
@@ -112,6 +113,76 @@ package model
 			
 			//test
 			lobbyInfo.outputObjectForDebug();
+			
+			dispatchEvent(new Event(Model.LOBBY_DATA_RECEIVED));
+		}
+		
+		public function requestOpponentList(playerId:String):void
+		{
+			var requestVariables:URLVariables = new URLVariables();
+			requestVariables.PlayerId = playerId;
+			
+			var request:URLRequest = new URLRequest();
+			request.url = "http://test.sportzrush.com/appconnector/data.svc/GetOpponentList";
+			request.method = URLRequestMethod.GET;
+			request.data = requestVariables;
+			
+			var loader:URLLoader = new URLLoader();
+			loader.dataFormat = URLLoaderDataFormat.TEXT;
+			
+			loader.addEventListener(Event.COMPLETE, opponentListLoaded); 
+			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+			loader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+			
+			loader.load(request);
+		}
+		
+		private function opponentListLoaded(e:Event):void
+		{
+			var jsonEncodedOpponentList:String = e.target.data;
+			opponentInfo.resetAllInfo();
+			
+			var decodedObject:Object = JSON.parse(jsonEncodedOpponentList);
+			
+			for (var i:int = 0; i < decodedObject.d.SelectOpponentListItems.length; i++)
+			{
+				var opponent:Opponent = new Opponent();
+				opponent.ChallengedPlayerId = decodedObject.d.SelectOpponentListItems[i].ChallengedPlayerId;
+				opponent.Username = decodedObject.d.SelectOpponentListItems[i].Username;
+				opponentInfo.SelectOpponentListItems.push(opponent);
+			}
+			
+			trace(opponentInfo.SelectOpponentListItems.toString());
+			
+			dispatchEvent(new Event(Model.OPPONENT_LIST_RECEIVED));
+			trace("opponent list processed");
+		}
+		
+		public function requestEventList(sportId:String, playerId:String, opponentId:String):void
+		{
+			var requestVariables:URLVariables = new URLVariables();
+			requestVariables.SportId = sportId;
+			requestVariables.PlayerId = playerId;
+			requestVariables.OpponentId = opponentId;
+			
+			var request:URLRequest = new URLRequest();
+			request.url = "http://test.sportzrush.com/appconnector/data.svc/GetEventList";
+			request.method = URLRequestMethod.GET;
+			request.data = requestVariables;
+			
+			var loader:URLLoader = new URLLoader();
+			loader.dataFormat = URLLoaderDataFormat.TEXT;
+			
+			loader.addEventListener(Event.COMPLETE, eventListLoaded); 
+			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+			loader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+			
+			loader.load(request);
+		}
+		
+		private function eventListLoaded(e:Event)
+		{
+			trace(e.target.data);
 		}
 		
 		private function securityErrorHandler(e:Event):void

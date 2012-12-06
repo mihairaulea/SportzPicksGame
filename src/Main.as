@@ -35,15 +35,19 @@ package
 			modelInstance.checkModel();
 		}
 		
-		private function modelErrorHandler(e:Event)
+		private function modelErrorHandler(e:Event):void
 		{
 			trace(modelInstance.errorMessage);
 		}
 		
-		private function modelSetupOkHandler(e:Event)
+		private function modelSetupOkHandler(e:Event):void
 		{
 			trace("model setup ok");
-			modelInstance.requestLobbyData("15b1e324-2e0f-4816-838c-2572d19c5f3d");
+			
+			// test for API calls, and loading into memory
+			//modelInstance.requestLobbyData("15b1e324-2e0f-4816-838c-2572d19c5f3d");
+			//modelInstance.requestOpponentList("15b1e324-2e0f-4816-838c-2572d19c5f3d");
+			modelInstance.requestEventList("1","15b1e324-2e0f-4816-838c-2572d19c5f3d","9e17e843-5202-4a82-84ad-0adef933b3d3");
 		}
 		
 		private function deactivate(e:Event):void 
